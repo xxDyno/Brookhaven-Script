@@ -1,0 +1,78 @@
+-- 👨‍💻 Carregar Biblioteca iLusieOS
+local iLusieOS = loadstring(game:HttpGet("https://raw.githubusercontent.com/xxDyno/Iludidos-Teste/573e75e49b263dd28c9c4f3a302e2071e19dd705/iLusieOS%201.1%20Teste"))()
+
+-- 👨‍🔧 Cache de Serviços e Remotes
+local RS = game:GetService("ReplicatedStorage")
+local Remotes = RS:WaitForChild("Remotes")
+local RE = RS:WaitForChild("RE")
+
+local RPRemote = RE:WaitForChild("1RPNam1eTex1t")
+local ToolRemote = RE:WaitForChild("1Too1l")
+local LoadOutfit = Remotes.LoadOutfit
+local ResetCharacter = Remotes.ResetCharacterAppearance
+
+-- Variáveis de estado para evitar spam
+local isTransformed = false
+local isProcessing = false
+
+-- Criar Janela 🪟
+local Window = iLusieOS.new({
+    Title = "Guest 666",
+    Size = UDim2.new(0, 300, 0, 200)
+})
+
+-- Função auxiliar com debounce
+local function transformGuest()
+    if isProcessing or isTransformed then return end
+    isProcessing = true
+    
+    task.spawn(function()
+        -- Usar pcall para evitar erros que causam lag
+        local success = pcall(function()
+            LoadOutfit:InvokeServer(20)
+            RPRemote:FireServer("RolePlayName", "Guest 666")
+            ToolRemote:InvokeServer("PickingTools", "Chainsaw")
+        end)
+        
+        if success then
+            isTransformed = true
+        end
+        
+        task.wait(0.5) -- Cooldown de 0.5s
+        isProcessing = false
+    end)
+end
+
+local function resetNormal()
+    if isProcessing or not isTransformed then return end
+    isProcessing = true
+    
+    task.spawn(function()
+        local success = pcall(function()
+            ResetCharacter:FireServer()
+            RPRemote:FireServer("RolePlayName", "")
+            ToolRemote:InvokeServer("PickingTools", "Chainsaw")
+        end)
+        
+        if success then
+            isTransformed = false
+        end
+        
+        task.wait(0.5) -- Cooldown de 0.5s
+        isProcessing = false
+    end)
+end
+
+-- 🔥 TRANSFORMAR
+Window:AddToggle("Transformar", false, function(state)
+    if state then
+        transformGuest()
+    end
+end)
+
+-- 🧍 VOLTAR AO NORMAL
+Window:AddToggle("Volta Ao Normal", false, function(state)
+    if state then
+        resetNormal()
+    end
+end)
